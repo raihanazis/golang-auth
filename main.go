@@ -51,7 +51,7 @@ func main() {
 
 	app := fiber.New()
 	//Route to Register user
-	app.Get("/register", Register)
+	app.Post("/register", Register)
 
 	app.Listen(":7000")
 
