@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,7 @@ type User struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name`
 	Email     string `json:"email"`
+	Password  []byte `json:"-"`
 }
 
 var DB *gorm.DB
@@ -34,10 +36,14 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
+	//Encrypt Password with Bcrypt
+	HashPassword, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
+
 	user := User{
 		FirstName: data["first_name"],
 		LastName:  data["last_name"],
 		Email:     data["email"],
+		Password:  HashPassword,
 	}
 
 	DB.Create(&user)
@@ -51,7 +57,7 @@ func main() {
 
 	app := fiber.New()
 	//Route to Register user
-	app.Get("/register", Register)
+	app.Post("/register", Register)
 
 	app.Listen(":7000")
 
